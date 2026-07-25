@@ -1,0 +1,15 @@
+.scrollmap .marker.marker-linter {
+  z-index: 15;
+
+  &.error {
+    background-color: var(--text-color-error);
+  }
+
+  &.warning {
+    background-color: var(--text-color-warning);
+  }
+
+  &.info {
+    background-color: var(--text-color-info);
+  }
+}

@@ -1,14 +1,34 @@
 # scrollmap-linter
 
-Show linter messages on the scrollbar.
+Show linter messages on the scrollbar. A layer package for [scrollmap](https://github.com/lumine-code/scrollmap) that renders diagnostics reported through the [linter](https://github.com/lumine-code/linter) package.
+
+## Features
+
+- **Message markers**: shows linter errors, warnings and infos as scrollbar markers.
+- **Severity colors**: markers are colored by message severity via theme colors.
+- **Range merging**: adjacent messages of the same severity are merged into a single marker.
+- **Threshold**: optionally hide all markers when the message count gets too large.
 
 ## Installation
 
-To install `scrollmap-linter` search for [scrollmap-linter](https://github.com/asiloisad/pulsar-scrollmap-linter) in the Install pane of the Pulsar settings or run `ppm install scrollmap-linter`. Alternatively, you can run `ppm install asiloisad/pulsar-scrollmap-linter` to install a package directly from the GitHub repository.
+To install `scrollmap-linter` search for _scrollmap-linter_ in the Install pane of the Lumine settings or run `lumine --install lumine-code/scrollmap-linter`.
 
-Layer package for [scrollmap](https://github.com/asiloisad/pulsar-scrollmap).
+## Customization
 
-Requires [linter](https://web.pulsar-edit.dev/packages/linter) or [linter-bundle](https://github.com/asiloisad/pulsar-linter-bundle).
+The style can be adjusted in the `styles.less` file, e.g. recolor markers of a given severity:
+
+```less
+.scrollmap .marker.marker-linter {
+  &.warning {
+    background-color: var(--text-color-modified);
+  }
+}
+```
+
+## Services
+
+- **scrollmap** (`1.0.0`): provided to register the `linter` marker layer rendered on the editor scrollbar.
+- **linter-ui** (`1.0.0`): provided to receive linter message patches from the linter package.
 
 ## Contributing
 
