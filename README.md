@@ -1,6 +1,8 @@
 # scrollmap-linter
 
-Show linter messages on the scrollbar. A layer package for [scrollmap](https://github.com/lumine-code/scrollmap) that renders diagnostics reported through the [linter](https://github.com/lumine-code/linter) package.
+Show linter messages on the scrollbar.
+
+A layer package for [scrollmap](https://github.com/lumine-code/scrollmap) that renders diagnostics reported through the [linter](https://github.com/lumine-code/linter) package.
 
 ## Features
 
