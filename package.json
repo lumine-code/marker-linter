@@ -7,11 +7,12 @@
     "url": "https://github.com/lumine-code/scrollmap-linter/issues"
   },
   "keywords": [
-    "scrollmap",
-    "linter",
-    "error",
-    "warning",
-    "marker"
+    "overview-ruler",
+    "gutter",
+    "annotation",
+    "decoration",
+    "diagnostics",
+    "error"
   ],
   "version": "1.0.0",
   "license": "MIT",
