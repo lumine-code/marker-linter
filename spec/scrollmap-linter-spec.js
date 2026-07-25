@@ -39,12 +39,15 @@ describe("scrollmap-linter", () => {
   }
 
   function createLayer(layerEditor) {
-    return {
+    const layer = {
       editor: layerEditor,
       cache: new Map(),
       disposables: new CompositeDisposable(),
       update: jasmine.createSpy("update"),
     };
+    // Register through the provider contract, exactly like the scrollmap hub.
+    mainModule.provideScrollmap().initialize(layer);
+    return layer;
   }
 
   describe("activation", () => {
@@ -80,7 +83,6 @@ describe("scrollmap-linter", () => {
 
     it("pushes messages of the matching file into the linter layer", () => {
       const layer = createLayer(editor);
-      editor.scrollmap = { layers: new Map([["linter", layer]]) };
 
       const own = message("error", 2, 3);
       const foreign = message("warning", 5, 5, path.join(tempDir, "other.js"));
@@ -89,25 +91,25 @@ describe("scrollmap-linter", () => {
       expect(layer.cache.get("data")).toEqual([own]);
       expect(layer.update).toHaveBeenCalled();
 
-      delete editor.scrollmap;
+      layer.disposables.dispose();
     });
 
     it("does not touch the layer when the patch concerns other files", () => {
       const layer = createLayer(editor);
-      editor.scrollmap = { layers: new Map([["linter", layer]]) };
 
       const foreign = message("warning", 5, 5, path.join(tempDir, "other.js"));
       ui.render({ added: [foreign], removed: [], messages: [foreign] });
 
-      expect(layer.cache.has("data")).toBe(false);
+      // The layer keeps the empty seed from initialize; the foreign patch
+      // neither updates the data nor schedules a redraw.
+      expect(layer.cache.get("data")).toEqual([]);
       expect(layer.update).not.toHaveBeenCalled();
 
-      delete editor.scrollmap;
+      layer.disposables.dispose();
     });
 
     it("clears layer data when messages are removed", () => {
       const layer = createLayer(editor);
-      editor.scrollmap = { layers: new Map([["linter", layer]]) };
 
       const own = message("error", 2, 3);
       ui.render({ added: [own], removed: [], messages: [own] });
@@ -116,7 +118,7 @@ describe("scrollmap-linter", () => {
       ui.render({ added: [], removed: [own], messages: [] });
       expect(layer.cache.get("data")).toEqual([]);
 
-      delete editor.scrollmap;
+      layer.disposables.dispose();
     });
   });
 
