@@ -51,12 +51,8 @@ describe("scrollmap-linter", () => {
   }
 
   describe("activation", () => {
-    it("activates and observes the threshold setting", () => {
+    it("activates", () => {
       expect(atom.packages.isPackageActive("scrollmap-linter")).toBe(true);
-      expect(mainModule.threshold).toBe(0);
-
-      atom.config.set("scrollmap-linter.threshold", 4);
-      expect(mainModule.threshold).toBe(4);
     });
   });
 
@@ -132,6 +128,8 @@ describe("scrollmap-linter", () => {
     it("describes the linter layer", () => {
       expect(provider.name).toBe("linter");
       expect(provider.position).toBe("left");
+      expect(provider.merge).toBe(true);
+      expect(provider.threshold).toBe("scrollmap-linter.threshold");
       expect(typeof provider.initialize).toBe("function");
       expect(typeof provider.getItems).toBe("function");
     });
@@ -147,49 +145,21 @@ describe("scrollmap-linter", () => {
       layer.disposables.dispose();
     });
 
-    it("re-runs the layer when the threshold changes", () => {
+    it("maps messages to raw markers with severity classes", () => {
       const layer = createLayer(editor);
-      provider.initialize(layer);
+      layer.cache.set("data", [
+        message("error", 4, 6),
+        message("error", 2, 3),
+        message("warning", 10, 10),
+      ]);
 
-      atom.config.set("scrollmap-linter.threshold", 9);
-      expect(layer.update).toHaveBeenCalled();
-      layer.disposables.dispose();
-    });
-
-    it("maps messages to markers with severity classes", () => {
-      const layer = createLayer(editor);
-      layer.cache.set("data", [message("error", 4, 6), message("warning", 10, 10)]);
-
+      // Sorting and merging are left to the hub.
       const items = provider.getItems(layer);
       expect(items).toEqual([
         { row: 4, end: 6, cls: "error" },
+        { row: 2, end: 3, cls: "error" },
         { row: 10, end: 10, cls: "warning" },
       ]);
-    });
-
-    it("merges adjacent markers of the same severity", () => {
-      const layer = createLayer(editor);
-      layer.cache.set("data", [
-        message("error", 4, 5),
-        message("error", 2, 3),
-        message("error", 8, 8),
-        message("warning", 10, 11),
-      ]);
-
-      const items = provider.getItems(layer);
-      expect(items).toEqual([
-        { row: 2, end: 5, cls: "error" },
-        { row: 8, end: 8, cls: "error" },
-        { row: 10, end: 11, cls: "warning" },
-      ]);
-    });
-
-    it("hides all markers when the threshold is exceeded", () => {
-      atom.config.set("scrollmap-linter.threshold", 1);
-      const layer = createLayer(editor);
-      layer.cache.set("data", [message("error", 1, 1), message("warning", 10, 10)]);
-
-      expect(provider.getItems(layer)).toEqual([]);
     });
 
     it("returns no items without cached data", () => {
