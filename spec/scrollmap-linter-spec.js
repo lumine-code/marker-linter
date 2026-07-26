@@ -56,7 +56,7 @@ describe("scrollmap-linter", () => {
     });
   });
 
-  describe("linter-ui service provider", () => {
+  describe("linter.ui service provider", () => {
     let ui;
 
     beforeEach(() => {
