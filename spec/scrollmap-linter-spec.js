@@ -46,7 +46,7 @@ describe("scrollmap-linter", () => {
       update: jasmine.createSpy("update"),
     };
     // Register through the provider contract, exactly like the scrollmap hub.
-    mainModule.provideScrollmap().initialize(layer);
+    mainModule.provideScrollmapLayer().initialize(layer);
     return layer;
   }
 
@@ -122,7 +122,7 @@ describe("scrollmap-linter", () => {
     let provider;
 
     beforeEach(() => {
-      provider = mainModule.provideScrollmap();
+      provider = mainModule.provideScrollmapLayer();
     });
 
     it("describes the linter layer", () => {
