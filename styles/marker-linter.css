@@ -12,4 +12,8 @@
   &.info {
     background-color: var(--text-color-info);
   }
+
+  &.hint {
+    background-color: var(--text-color-hint);
+  }
 }

@@ -16,7 +16,7 @@
     "diagnostics",
     "error"
   ],
-  "version": "1.1.0",
+  "version": "1.2.0",
   "license": "MIT",
   "engines": {
     "atom": ">=1.100.0 <2.0.0"
@@ -49,6 +49,12 @@
     "prettier": "^3.9.6"
   },
   "configSchema": {
+    "showHints": {
+      "title": "Show hints",
+      "description": "Show messages of hint severity. Hints are usually numerous and would trip the threshold below.",
+      "type": "boolean",
+      "default": false
+    },
     "threshold": {
       "title": "Threshold",
       "description": "Hide markers if count exceeds this value. Zero means no limit.",

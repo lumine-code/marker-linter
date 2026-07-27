@@ -6,7 +6,7 @@ A marker layer that renders the diagnostics reported through the [linter](https:
 
 ## Features
 
-- **Message markers**: shows linter errors, warnings and infos as overview markers.
+- **Message markers**: shows linter errors, warnings and infos as overview markers, with hints hidden by default.
 - **Severity colors**: markers are colored by message severity via theme colors.
 - **Range merging**: adjacent messages of the same severity are merged into a single marker.
 - **Threshold**: optionally hide all markers when the message count gets too large.

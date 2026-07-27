@@ -15,6 +15,10 @@ describe("marker-linter", () => {
     editor = await atom.workspace.open(editorPath);
     const pack = await atom.packages.activatePackage("marker-linter");
     mainModule = pack.mainModule;
+    // The harness keeps one config for the whole window, so without this a spec
+    // that enables hints leaves them enabled for every spec after it -- and the
+    // next `set(true)` would be a no-op that never reaches the observer.
+    atom.config.unset("marker-linter.showHints");
   });
 
   afterEach(() => {
@@ -161,6 +165,38 @@ describe("marker-linter", () => {
         { row: 2, end: 3, cls: "error" },
         { row: 10, end: 10, cls: "warning" },
       ]);
+
+      layer.disposables.dispose();
+    });
+
+    it("drops hint messages by default", () => {
+      const layer = createLayer(editor, provider);
+      layer.cache.set("data", [message("error", 1, 1), message("hint", 4, 4)]);
+
+      expect(provider.getItems(layer)).toEqual([{ row: 1, end: 1, cls: "error" }]);
+
+      layer.disposables.dispose();
+    });
+
+    it("maps hint messages once they are enabled", () => {
+      atom.config.set("marker-linter.showHints", true);
+      const layer = createLayer(editor, provider);
+      layer.cache.set("data", [message("error", 1, 1), message("hint", 4, 4)]);
+
+      expect(provider.getItems(layer)).toEqual([
+        { row: 1, end: 1, cls: "error" },
+        { row: 4, end: 4, cls: "hint" },
+      ]);
+
+      layer.disposables.dispose();
+    });
+
+    it("re-runs the layer when the hint setting is toggled", () => {
+      const layer = createLayer(editor, provider);
+      expect(layer.update).not.toHaveBeenCalled();
+
+      atom.config.set("marker-linter.showHints", true);
+      expect(layer.update).toHaveBeenCalled();
 
       layer.disposables.dispose();
     });
