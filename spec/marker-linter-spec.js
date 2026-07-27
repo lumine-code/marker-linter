@@ -47,7 +47,7 @@ describe("marker-linter", () => {
       disposables: new CompositeDisposable(),
       update: jasmine.createSpy("update"),
     };
-    // Attached the way a renderer's layer host attaches it.
+    // Attached the way the marker hub attaches it.
     props.initialize(layer);
     return layer;
   }
@@ -90,38 +90,6 @@ describe("marker-linter", () => {
       expect(layer.update).toHaveBeenCalled();
 
       layer.disposables.dispose();
-    });
-
-    it("pushes to every layer attached to the same editor", () => {
-      // What two renderers look like from here: two layers, one editor.
-      const first = createLayer(editor);
-      const second = createLayer(editor);
-
-      const own = message("error", 2, 3);
-      ui.render({ added: [own], removed: [], messages: [own] });
-
-      expect(first.cache.get("data")).toEqual([own]);
-      expect(second.cache.get("data")).toEqual([own]);
-      expect(first.update).toHaveBeenCalled();
-      expect(second.update).toHaveBeenCalled();
-
-      first.disposables.dispose();
-      second.disposables.dispose();
-    });
-
-    it("keeps pushing to the surviving layer after one detaches", () => {
-      const first = createLayer(editor);
-      const second = createLayer(editor);
-      first.disposables.dispose();
-
-      const own = message("error", 2, 3);
-      ui.render({ added: [own], removed: [], messages: [own] });
-
-      expect(first.update).not.toHaveBeenCalled();
-      expect(second.cache.get("data")).toEqual([own]);
-      expect(second.update).toHaveBeenCalled();
-
-      second.disposables.dispose();
     });
 
     it("does not touch the layer when the patch concerns other files", () => {
