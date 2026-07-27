@@ -29,8 +29,8 @@ The style can be adjusted in the `styles.less` file, e.g. recolor markers of a g
 
 ## Services
 
-- **[marker.layer](https://lumine-code.github.io/docs.html#services/marker.layer)** (`1.0.0`): provided to register the `linter` marker layer drawn by the editor's overview maps.
-- **[linter.ui](https://lumine-code.github.io/docs.html#services/linter.ui)** (`1.0.0`): provided to receive linter message patches from the linter package.
+- **marker.layer** (`1.0.0`): provided to register the `linter` marker layer drawn by the editor's overview maps.
+- **linter.ui** (`1.0.0`): provided to receive linter message patches from the linter package.
 
 ## Contributing
 
