@@ -1,4 +1,4 @@
-.scrollmap .marker.marker-linter {
+.marker.marker-linter {
   z-index: 15;
 
   &.error {

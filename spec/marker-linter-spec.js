@@ -3,17 +3,17 @@ const path = require("path");
 const fs = require("fs");
 const os = require("os");
 
-describe("scrollmap-linter", () => {
+describe("marker-linter", () => {
   let workspaceElement, editor, editorPath, mainModule, tempDir;
 
   beforeEach(async () => {
     workspaceElement = atom.views.getView(atom.workspace);
     jasmine.attachToDOM(workspaceElement);
-    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "scrollmap-linter-"));
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "marker-linter-"));
     editorPath = path.join(tempDir, "sample.js");
     fs.writeFileSync(editorPath, Array(30).fill("lorem ipsum").join("\n"));
     editor = await atom.workspace.open(editorPath);
-    const pack = await atom.packages.activatePackage("scrollmap-linter");
+    const pack = await atom.packages.activatePackage("marker-linter");
     mainModule = pack.mainModule;
   });
 
@@ -38,21 +38,23 @@ describe("scrollmap-linter", () => {
     };
   }
 
-  function createLayer(layerEditor) {
+  function createLayer(layerEditor, props = mainModule.provideMarkerLayer()) {
     const layer = {
       editor: layerEditor,
+      props,
       cache: new Map(),
+      items: [],
       disposables: new CompositeDisposable(),
       update: jasmine.createSpy("update"),
     };
-    // Register through the provider contract, exactly like the scrollmap hub.
-    mainModule.provideScrollmapLayer().initialize(layer);
+    // Attached the way a renderer's layer host attaches it.
+    props.initialize(layer);
     return layer;
   }
 
   describe("activation", () => {
     it("activates", () => {
-      expect(atom.packages.isPackageActive("scrollmap-linter")).toBe(true);
+      expect(atom.packages.isPackageActive("marker-linter")).toBe(true);
     });
   });
 
@@ -90,6 +92,38 @@ describe("scrollmap-linter", () => {
       layer.disposables.dispose();
     });
 
+    it("pushes to every layer attached to the same editor", () => {
+      // What two renderers look like from here: two layers, one editor.
+      const first = createLayer(editor);
+      const second = createLayer(editor);
+
+      const own = message("error", 2, 3);
+      ui.render({ added: [own], removed: [], messages: [own] });
+
+      expect(first.cache.get("data")).toEqual([own]);
+      expect(second.cache.get("data")).toEqual([own]);
+      expect(first.update).toHaveBeenCalled();
+      expect(second.update).toHaveBeenCalled();
+
+      first.disposables.dispose();
+      second.disposables.dispose();
+    });
+
+    it("keeps pushing to the surviving layer after one detaches", () => {
+      const first = createLayer(editor);
+      const second = createLayer(editor);
+      first.disposables.dispose();
+
+      const own = message("error", 2, 3);
+      ui.render({ added: [own], removed: [], messages: [own] });
+
+      expect(first.update).not.toHaveBeenCalled();
+      expect(second.cache.get("data")).toEqual([own]);
+      expect(second.update).toHaveBeenCalled();
+
+      second.disposables.dispose();
+    });
+
     it("does not touch the layer when the patch concerns other files", () => {
       const layer = createLayer(editor);
 
@@ -118,18 +152,18 @@ describe("scrollmap-linter", () => {
     });
   });
 
-  describe("scrollmap service provider", () => {
+  describe("marker.layer service provider", () => {
     let provider;
 
     beforeEach(() => {
-      provider = mainModule.provideScrollmapLayer();
+      provider = mainModule.provideMarkerLayer();
     });
 
     it("describes the linter layer", () => {
       expect(provider.name).toBe("linter");
       expect(provider.position).toBe("left");
       expect(provider.merge).toBe(true);
-      expect(provider.threshold).toBe("scrollmap-linter.threshold");
+      expect(provider.threshold).toBe("marker-linter.threshold");
       expect(typeof provider.initialize).toBe("function");
       expect(typeof provider.getItems).toBe("function");
     });
@@ -139,32 +173,35 @@ describe("scrollmap-linter", () => {
       const foreign = message("info", 2, 2, path.join(tempDir, "other.js"));
       mainModule.messages = [own, foreign];
 
-      const layer = createLayer(editor);
-      provider.initialize(layer);
+      const layer = createLayer(editor, provider);
       expect(layer.cache.get("data")).toEqual([own]);
       layer.disposables.dispose();
     });
 
     it("maps messages to raw markers with severity classes", () => {
-      const layer = createLayer(editor);
+      const layer = createLayer(editor, provider);
       layer.cache.set("data", [
         message("error", 4, 6),
         message("error", 2, 3),
         message("warning", 10, 10),
       ]);
 
-      // Sorting and merging are left to the hub.
+      // Sorting and merging are left to the host.
       const items = provider.getItems(layer);
       expect(items).toEqual([
         { row: 4, end: 6, cls: "error" },
         { row: 2, end: 3, cls: "error" },
         { row: 10, end: 10, cls: "warning" },
       ]);
+
+      layer.disposables.dispose();
     });
 
     it("returns no items without cached data", () => {
-      const layer = createLayer(editor);
+      const layer = createLayer(editor, provider);
+      layer.cache.clear();
       expect(provider.getItems(layer)).toEqual([]);
+      layer.disposables.dispose();
     });
   });
 });

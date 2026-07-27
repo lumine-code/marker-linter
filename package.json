@@ -1,16 +1,18 @@
 {
-  "name": "scrollmap-linter",
+  "name": "marker-linter",
   "author": "lumine-code",
-  "description": "Show linter messages on the scrollbar.",
-  "repository": "https://github.com/lumine-code/scrollmap-linter",
+  "description": "Show linter messages on the scrollbar and minimap.",
+  "repository": "https://github.com/lumine-code/marker-linter",
   "bugs": {
-    "url": "https://github.com/lumine-code/scrollmap-linter/issues"
+    "url": "https://github.com/lumine-code/marker-linter/issues"
   },
   "keywords": [
     "overview-ruler",
     "gutter",
     "annotation",
     "decoration",
+    "scrollmap",
+    "minimap",
     "diagnostics",
     "error"
   ],
@@ -21,15 +23,15 @@
   },
   "main": "./lib/main",
   "scripts": {
-    "test": "cd ../../lumine && npm run test:only -- ../pkg_lumine/scrollmap-linter/spec",
+    "test": "cd ../../lumine && npm run test:only -- ../pkg_lumine/marker-linter/spec",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
   "providedServices": {
-    "scrollmap.layer": {
+    "marker.layer": {
       "versions": {
-        "1.0.0": "provideScrollmapLayer"
+        "1.0.0": "provideMarkerLayer"
       }
     },
     "linter.ui": {
