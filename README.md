@@ -17,9 +17,9 @@ To install `marker-linter` search for _marker-linter_ in the Install pane of the
 
 ## Customization
 
-The style can be adjusted in the `styles.less` file, e.g. recolor markers of a given severity:
+The style can be adjusted in the `styles.css` file, e.g. recolor markers of a given severity:
 
-```less
+```css
 .marker.marker-linter {
   &.warning {
     background-color: var(--text-color-modified);
