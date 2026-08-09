@@ -1,4 +1,4 @@
-const { CompositeDisposable } = require("atom");
+const { CompositeDisposable } = require("lumine");
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
@@ -7,18 +7,18 @@ describe("marker-linter", () => {
   let workspaceElement, editor, editorPath, mainModule, tempDir;
 
   beforeEach(async () => {
-    workspaceElement = atom.views.getView(atom.workspace);
+    workspaceElement = lumine.views.getView(lumine.workspace);
     jasmine.attachToDOM(workspaceElement);
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "marker-linter-"));
     editorPath = path.join(tempDir, "sample.js");
     fs.writeFileSync(editorPath, Array(30).fill("lorem ipsum").join("\n"));
-    editor = await atom.workspace.open(editorPath);
-    const pack = await atom.packages.activatePackage("marker-linter");
+    editor = await lumine.workspace.open(editorPath);
+    const pack = await lumine.packages.activatePackage("marker-linter");
     mainModule = pack.mainModule;
     // The harness keeps one config for the whole window, so without this a spec
     // that enables hints leaves them enabled for every spec after it -- and the
     // next `set(true)` would be a no-op that never reaches the observer.
-    atom.config.unset("marker-linter.showHints");
+    lumine.config.unset("marker-linter.showHints");
   });
 
   afterEach(() => {
@@ -60,7 +60,7 @@ describe("marker-linter", () => {
 
   describe("activation", () => {
     it("activates", () => {
-      expect(atom.packages.isPackageActive("marker-linter")).toBe(true);
+      expect(lumine.packages.isPackageActive("marker-linter")).toBe(true);
     });
   });
 
@@ -181,7 +181,7 @@ describe("marker-linter", () => {
     });
 
     it("maps hint messages once they are enabled", () => {
-      atom.config.set("marker-linter.showHints", true);
+      lumine.config.set("marker-linter.showHints", true);
       const layer = createLayer(editor, provider);
       layer.cache.set("data", [message("error", 1, 1), message("hint", 4, 4)]);
 
@@ -197,7 +197,7 @@ describe("marker-linter", () => {
       const layer = createLayer(editor, provider);
       expect(layer.update).not.toHaveBeenCalled();
 
-      atom.config.set("marker-linter.showHints", true);
+      lumine.config.set("marker-linter.showHints", true);
       expect(layer.update).toHaveBeenCalled();
 
       layer.disposables.dispose();
