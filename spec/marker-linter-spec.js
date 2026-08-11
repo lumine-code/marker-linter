@@ -3,6 +3,12 @@ const path = require("path");
 const fs = require("fs");
 const os = require("os");
 
+// The hub's rule, mirrored: Windows treats `/` and `\` as one separator and is
+// case-insensitive, so a message and a buffer naming the same file must compare
+// equal. The real one is handed over on `attach`.
+const normalizePath = (filePath) =>
+  process.platform === "win32" ? filePath.replace(/\\/g, "/").toLowerCase() : filePath;
+
 describe("marker-linter", () => {
   let workspaceElement, editor, editorPath, mainModule, tempDir;
 
@@ -31,11 +37,15 @@ describe("marker-linter", () => {
     }
   });
 
+  // `normalizedFile` is what the hub settles a message's path to and what every
+  // consumer compares by, so a fixture without one is not a message the linter
+  // could hand over.
   function message(severity, startRow, endRow, file = editorPath) {
     return {
       severity,
       location: {
         file,
+        normalizedFile: normalizePath(file),
         position: {
           start: { row: startRow, column: 0 },
           end: { row: endRow, column: 5 },
@@ -69,14 +79,31 @@ describe("marker-linter", () => {
 
     beforeEach(() => {
       ui = mainModule.provideLinterUI();
+      ui.attach({ normalizePath });
     });
 
     it("matches the shape expected by the linter package", () => {
       expect(typeof ui.name).toBe("string");
       expect(typeof ui.render).toBe("function");
-      expect(typeof ui.didBeginLinting).toBe("function");
-      expect(typeof ui.didFinishLinting).toBe("function");
-      expect(typeof ui.dispose).toBe("function");
+      expect(typeof ui.attach).toBe("function");
+    });
+
+    // A server answers with its own spelling of the path it was handed — a
+    // lowercase drive letter for `C:\…` is the usual one. Compared raw, its
+    // diagnostics marked nothing at all.
+    it("marks a file the provider spelled differently", () => {
+      // Only asserted on Windows: it is the platform where two spellings are
+      // one file, and off it a different spelling is a different file.
+      if (process.platform !== "win32") return;
+      const layer = createLayer(editor);
+      const spelling = editorPath
+        .replace(/^[A-Za-z]:/, (drive) => drive.toLowerCase())
+        .replace(/\\/g, "/");
+      const messages = [message("error", 1, 1, spelling)];
+
+      ui.render({ added: messages, removed: [], messages });
+
+      expect(layer.cache.get("data").length).toBe(1);
     });
 
     it("stores rendered messages on the main module", () => {
