@@ -13,7 +13,7 @@ A marker layer that renders the diagnostics reported through the [linter](https:
 
 ## Installation
 
-To install `marker-linter` search for _marker-linter_ in the Install pane of the Lumine settings or run `lumine --install lumine-code/marker-linter`.
+To install `marker-linter` search for it in the Install pane of the Lumine settings, or run the command `lumine --install lumine-code/marker-linter`.
 
 ## Customization
 
@@ -29,8 +29,8 @@ The style can be adjusted in the `styles.css` file, e.g. recolor markers of a gi
 
 ## Services
 
-- **marker.layer** (`1.0.0`): provided to register the `linter` marker layer drawn by the editor's overview maps.
-- **linter.ui** (`1.0.0`): provided to receive linter message patches from the linter package.
+- `marker.layer`: provided to register the `linter` marker layer drawn by the editor's overview maps.
+- `linter.ui`: provided to receive linter message patches from the linter package.
 
 ## Contributing
 
