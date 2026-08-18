@@ -1,5 +1,8 @@
 # marker-linter
 
+> [!WARNING]
+> **This package is deprecated.** Its marker layer now ships with [linter](https://github.com/lumine-code/linter) itself — the marker-* adapter packages were folded into their host packages, and this layer's settings moved to `linter.marker.*`. This repository is archived and no longer maintained.
+
 Show linter messages on the scrollbar and minimap.
 
 A marker layer that renders the diagnostics reported through the [linter](https://github.com/lumine-code/linter) package, drawn by [scrollmap](https://github.com/lumine-code/scrollmap) on the scrollbar and by [minimap](https://github.com/lumine-code/minimap) on the minimap.
